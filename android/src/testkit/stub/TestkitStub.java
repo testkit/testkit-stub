@@ -62,7 +62,7 @@ public class TestkitStub extends Activity {
 		}
 
         try {
-			Process p = Runtime.getRuntime().exec(path + stub);
+			Process p = Runtime.getRuntime().exec("sh -c " + path + stub);
 			String line = "", res = "";
 
 			InputStream input = p.getInputStream();
