@@ -1,38 +1,40 @@
-TCT-stub
-========
+Testkit-stub
+============================
 
-Intel Tizen Compatibility Test Stub
+Intel Tizen Web Test Utility: testkit-stub
 
-###to build and install x86 version on linux pc,###
-1, make
+###Build and install x86 binary for local target###
+1. Run "make" in root folder of stub to build x86/x86_64 binary of stub, the built out depends on OS arch of localhost
 
-2, sudo make install
-
-
-
-###to build ARM version locally(without OBS), please make sure ###
-
-1, install tizen2.0 SDK with all component selected, 
-
-2, replace all "/home/danny/" in file "CommandLineBuild/build_data" with your own home path, such as "/home/test/"
-
-3, run native-make -t device in CommandLineBuild folder.
+        make
 
 
-to build unit test, just run "make ut" in root folder of the project. then run valgrind to check memory leak.
 
-valgrind --tool=memcheck --leak-check=yes --track-origins=yes -v ./ut
+###Build binary for TIZEN target with cross-compiler Tool###
 
-###to build on windows###
-1, use git bash to maintain code
+1. Install tizen2.2.1 SDK with all component selected, refer to
+   https://developer.tizen.org/downloads/sdk/installing-tizen-sdk
 
-2, use msys and mingw to compile
+2. Run tizen tool "/path/to/tizen-sdk/tools/native-make" to build arm binary of stub
 
-3, to build the target, run "make win"
+        cd CommandLineBuild
+        /path/to/tizen-sdk/tools/native-make clean
+        /path/to/tizen-sdk/tools/native-make -a armel -t GCC4.5
 
-###for Android###
-1, for x86 device, run "make android"
+3. Run tizen tool "/path/to/tizen-sdk/tools/native-make" to build x86 binary of stub
 
-2, for ARM or mips, install Android NDK at first, then run ndk-build in jni folder
+        cd CommandLineBuild
+        /path/to/tizen-sdk/tools/native-make clean
+        /path/to/tizen-sdk/tools/native-make -a i386 -t GCC4.5
 
-3, use eclipse+ADT to import android project from TCT-stub folder, build apk file for wrapper app of stub in android target
+
+###Build APK file of stub for Android Target###
+
+1. Install Android NDK  and Android Developer Tool at first
+
+2. Run /path/to/android-ndk-<version>/ndk-build in "android/jni" folder, it will build out x86/arm/mips binary files
+
+        cd android/jni
+        /path/to/android-ndk-<version>/ndk-build
+
+3. Open Android Developer Tool import android project from  "android" folder, build apk of stub wrapper application
