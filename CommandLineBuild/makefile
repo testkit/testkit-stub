@@ -72,7 +72,7 @@ OBJS += \
 source/%.o: ../source/%.cpp
 	@echo 'Building file: $<'
 	@echo 'Invoking: C++ Compiler'
-	$(CC) -I"pch" -D_DEBUG -O0 -g3 -Wall -c -fmessage-length=0 $(INCLUDE_PATH) $(INCLUDES) $(CFLAG) -D_APP_LOG -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
+	$(CC) -I"pch" -D_DEBUG -O0 -g3 -Wall -c -fmessage-length=0 $(INCLUDE_PATH) $(INCLUDES) -I$(SDKPATH)/library -I$(ROOTSTRAP)/usr/include $(CFLAG) -D_APP_LOG -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 
@@ -118,7 +118,7 @@ init:
 testkit-stub: init $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: C++ Linker'
-	$(CC) -o"testkit-stub" $(OBJS) $(USER_OBJS) $(LIBS) $(LFLAG)
+	$(CC) -o"testkit-stub" -L$(ROOTSTRAP)/usr/lib --sysroot=$(ROOTSTRAP) -lpthread $(OBJS) $(USER_OBJS) $(LIBS) $(LFLAG)
 	@echo 'Finished building target: $@'
 	@echo ' '
 

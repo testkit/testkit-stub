@@ -387,8 +387,6 @@ void HttpServer::processpost(int s, struct HttpRequest *prequest) {
 			DBG_ONLY("[ set test cases ]");
 		parse_json_str(prequest->content);
 
-		//start_client();
-//		if(g_run_wiget == true)//not set timeout when run on browser
 		set_timer(20); // set timer here incase widget hang.
 		m_check_times = 0;
 
@@ -682,16 +680,6 @@ void HttpServer::timeout_action() {
 	string json_str = "{\"OK\":1}";
 	if (!m_server_checked) {// start widget again in case it dead. browser not need to restart
 		g_error_code = 1;
-		/*if (m_check_times < 3) {
-			m_check_times++;
-			if(g_show_log)
-				DBG_ONLY("[ checking the client " << m_check_times << " times ]");
-			if (g_run_wiget == true) start_client();
-			set_timer(20);
-		} else {// widget fail for 3 times. finish current set.
-			m_set_finished = true;
-			m_block_finished = true;
-		}*/
 	} else if (!m_test_cases) {
 		json_str = "{\"Error\":\"no case\"}";
 	} else if (m_exeType != "auto") {// skip to next set if widget crash when run manual cases
@@ -705,7 +693,9 @@ void HttpServer::timeout_action() {
 		}
 	} else if (m_block_case_index < m_block_case_count) {
 		g_error_code = 3;
-		checkResult(&m_test_cases[m_block_case_index]);
+		m_timeout_count++;
+		if(m_timeout_count >= 3) // continue to try
+			checkResult(&m_test_cases[m_block_case_index]);
 		json_str = "{\"OK\":\"send timeout\"}";
 	} else {
 		json_str = "{\"Error\":\"case out of index\"}";
