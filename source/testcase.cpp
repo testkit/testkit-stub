@@ -34,8 +34,8 @@ void TestCase::init(const Json::Value value) {
 	if (value["timeout"].isString())
 		timeout_value = atoi(value["timeout"].asString().c_str());
 	else {
-		timeout_value = 90;
-		m_case["timeout"] = "90";
+		timeout_value = 50;
+		m_case["timeout"] = "50";
 	}
 }
 
