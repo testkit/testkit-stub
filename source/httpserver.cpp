@@ -693,9 +693,7 @@ void HttpServer::timeout_action() {
 		}
 	} else if (m_block_case_index < m_block_case_count) {
 		g_error_code = 3;
-		m_timeout_count++;
-		if(m_timeout_count >= 1) // continue to try
-			checkResult(&m_test_cases[m_block_case_index]);
+		checkResult(&m_test_cases[m_block_case_index]);
 		json_str = "{\"OK\":\"send timeout\"}";
 	} else {
 		json_str = "{\"Error\":\"case out of index\"}";
