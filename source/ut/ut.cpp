@@ -13,8 +13,9 @@
 
 #include "httpserver.h"
 
-int main() {
-	HttpServer* httpserver = new HttpServer();
+int main()
+{
+	HttpServer *httpserver = new HttpServer();
 
 	httpserver->parse_json_str("src/ut/test.json");
 
@@ -65,7 +66,8 @@ int main() {
 	httpserver->processpost(1, &httprequest);
 
 	httprequest.path = "/set_capability";
-	httprequest.content = "{\"name1\":true, \"name2\":45, \"name3\":\"678\"}";
+	httprequest.content =
+	    "{\"name1\":true, \"name2\":45, \"name3\":\"678\"}";
 	httpserver->processpost(1, &httprequest);
 
 	httprequest.path = "/capability";
@@ -85,7 +87,8 @@ int main() {
 	httpserver->processpost(1, &httprequest);
 
 	httprequest.path = "/set_capability";
-	httprequest.content = "{\"bluetooth\":true, \"nfc\":true, \"multiTouchCount\":true, \"inputKeyboard\":true, \"wifi\":true, \"wifiDirect\":true, \"openglesVersion1_1\":true, \"openglesVersion2_0\":true, \"fmRadio\":true, \"platformVersion\":true, \"webApiVersion\":true, \"nativeApiVersion\":true, \"platformName\":true, \"cameraFront\":true, \"cameraFrontFlash\":true, \"cameraBack\":true, \"cameraBackFlash\":true, \"location\":true, \"locationGps\":true, \"locationWps\":true, \"microphone\":true, \"usbHost\":true, \"usbAccessory\":true, \"screenOutputRca\":true, \"screenOutputHdmi\":true, \"platformCoreCpuArch\":true, \"platformCoreFpuArch\":true, \"sipVoip\":true, \"duid\":true, \"speechRecognition\":true, \"accelerometer\":true, \"barometer\":true, \"gyroscope\":true, \"magnetometer\":true, \"proximity\":true}";
+	httprequest.content =
+	    "{\"bluetooth\":true, \"nfc\":true, \"multiTouchCount\":true, \"inputKeyboard\":true, \"wifi\":true, \"wifiDirect\":true, \"openglesVersion1_1\":true, \"openglesVersion2_0\":true, \"fmRadio\":true, \"platformVersion\":true, \"webApiVersion\":true, \"nativeApiVersion\":true, \"platformName\":true, \"cameraFront\":true, \"cameraFrontFlash\":true, \"cameraBack\":true, \"cameraBackFlash\":true, \"location\":true, \"locationGps\":true, \"locationWps\":true, \"microphone\":true, \"usbHost\":true, \"usbAccessory\":true, \"screenOutputRca\":true, \"screenOutputHdmi\":true, \"platformCoreCpuArch\":true, \"platformCoreFpuArch\":true, \"sipVoip\":true, \"duid\":true, \"speechRecognition\":true, \"accelerometer\":true, \"barometer\":true, \"gyroscope\":true, \"magnetometer\":true, \"proximity\":true}";
 	httpserver->processpost(1, &httprequest);
 
 	httpserver->StartUp();
