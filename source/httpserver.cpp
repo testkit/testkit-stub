@@ -21,6 +21,7 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sstream>
+#include <time.h>
 
 #include "httpserver.h"
 
@@ -57,6 +58,7 @@ struct itimerval timer;
 #include "comfun.h"
 
 #define MAX_BUF 300000
+#define CLIENT_LIVE_TIMEOUT 300
 
 #define GET   0
 #define HEAD  2
@@ -114,6 +116,7 @@ HttpServer::HttpServer()
 	m_killing_widget = false;
 	m_suite_name = "";
 	m_suite_id = "";
+	m_cl_timeout = 0;
 
 #if defined(__WIN32__) || defined(__WIN64__)
 #else
@@ -271,6 +274,31 @@ void HttpServer::set_timer(int timeout_value)
 #endif
 }
 
+void HttpServer::set_cl_timeout(long int timeout_value)
+{
+	time_t cur_time;
+
+	time(&cur_time);
+	m_cl_timeout = cur_time + CLIENT_LIVE_TIMEOUT + timeout_value;
+}
+
+bool HttpServer::check_cl_timeout()
+{
+	time_t cur_time;
+
+	time(&cur_time);
+
+	DBG_ONLY("----cur_time = " << cur_time << ", m_cl_timeout = " <<
+		 m_cl_timeout);
+	if (m_cl_timeout > 0 && cur_time >= m_cl_timeout) {
+		DBG_ONLY("----client is timeout");
+		return true;
+	} else {
+		DBG_ONLY("----client is not timeout");
+		return false;
+	}
+}
+
 Json::Value HttpServer::splitContent(string content)
 {
 	Json::Value httpParas;
@@ -347,6 +375,7 @@ void HttpServer::processpost(int s, struct HttpRequest *prequest)
 #endif
 
 	if (prequest->path.find("/init_test") != string::npos) {	// invoke by com-module to init some para for test
+		set_cl_timeout(0);
 		Json::Reader reader;
 		Json::Value value;
 		if (g_show_log)
@@ -364,7 +393,7 @@ void HttpServer::processpost(int s, struct HttpRequest *prequest)
 				g_kill_cmd = g_launcher + " -k " + m_suite_id;
 				killAllWidget();
 			} else if (g_launcher == "xwalk") {	// xwalk on android
-				g_run_wiget = false;
+				g_run_wiget = true;
 				//am start -n org.xwalk.tct-2dtransforms-css3-tests/.tct-2dtransforms-css3-testsActivity
 				//g_launch_cmd = "am start -n org.xwalk." + m_suite_name + "/." + m_suite_name + "Activity";
 				//g_kill_cmd = "am force-stop org.xwalk." + m_suite_name;
@@ -382,7 +411,8 @@ void HttpServer::processpost(int s, struct HttpRequest *prequest)
 				else
 					g_kill_cmd = "";	// not kill browser
 #endif
-				g_run_wiget = false;
+				m_suite_id = value["suite_id"].asString();
+				g_run_wiget = true;
 				//wait for the index window.close, otherwise will occur bind aleady error
 				sleep(1);
 			}
@@ -410,6 +440,7 @@ void HttpServer::processpost(int s, struct HttpRequest *prequest)
 		if (m_current_block_index == 1)
 			m_total_case_index = 0;
 	} else if (prequest->path == "/check_server") {	// invoke by index.html to find server running or not
+		set_cl_timeout(0);
 		m_server_checked = true;
 		m_check_times = 0;
 		cancel_time_check();
@@ -420,7 +451,10 @@ void HttpServer::processpost(int s, struct HttpRequest *prequest)
 		Json::Value status;
 		status["block_finished"] = m_block_finished ? 1 : 0;
 		status["finished"] = m_set_finished ? 1 : 0;
-		if (m_failto_launch > m_max_fail_launch) {
+		if (m_exeType == "auto" && check_cl_timeout()) {
+			status["error_code"] = 2;
+			status["finished"] = 1;	//finish current set if widget is timeout
+		} else if (m_failto_launch > m_max_fail_launch) {
 			status["error_code"] = 2;
 			status["finished"] = 1;	// finish current set if can't launch widget
 		} else if (g_error_code > 0) {
@@ -467,6 +501,7 @@ void HttpServer::processpost(int s, struct HttpRequest *prequest)
 			killAllWidget();	// kill all widget when shutdown server
 		gIsRun = 0;
 	} else if (prequest->path.find("/init_session_id") != string::npos) {	// invoke by index.html to record a session id
+		set_cl_timeout(0);
 		int index = prequest->path.find('=');
 		if (index != -1) {
 			m_running_session = prequest->path.substr(index + 1);
@@ -478,6 +513,7 @@ void HttpServer::processpost(int s, struct HttpRequest *prequest)
 				DBG_ONLY("[ invalid session id ]");
 		}
 	} else if (prequest->path.find("/ask_next_step") != string::npos) {	// invoke by index.html to check whether there are more cases
+		set_cl_timeout(0);
 		if (m_block_finished || m_set_finished)
 			json_str = "{\"step\":\"stop\"}";
 		else
@@ -485,6 +521,7 @@ void HttpServer::processpost(int s, struct HttpRequest *prequest)
 
 		m_timeout_count = 0;	// reset the timeout count
 	} else if (prequest->path.find("/auto_test_task") != string::npos) {	// invoke by index.html to get current auto case
+		set_cl_timeout(0);
 		if (m_test_cases == NULL) {
 			json_str = "{\"Error\":\"no case\"}";
 		} else if (m_exeType != "auto") {
@@ -516,12 +553,14 @@ void HttpServer::processpost(int s, struct HttpRequest *prequest)
 			set_timer(60);	// check every 60 seconds to make sure widget alive when run manual cases.
 		}
 	} else if (prequest->path.find("/commit_manual_result") != string::npos) {	// invoke by index.html to provide result of a manual case.
+		set_cl_timeout(0);
 		if ((prequest->content.length() == 0) || (!m_test_cases)) {
 			json_str = "{\"Error\":\"no manual result\"}";
 		} else {
 			find_id(splitContent(prequest->content), false);	// will set index in find_id
 		}
 	} else if (prequest->path.find("/check_execution_progress") != string::npos) {	//invoke by index.html to get test result of last auto case
+		set_cl_timeout(0);
 		char *total_count = new char[16];
 		sprintf(total_count, "%d", m_totalcaseCount);
 		char *current_index = new char[16];
@@ -538,6 +577,7 @@ void HttpServer::processpost(int s, struct HttpRequest *prequest)
 	}
 	//generate_xml:from index_html, a maually block finished when click done in widget, or no manual cases anymore(when run auto block)
 	else if (prequest->path == "/generate_xml") {
+		set_cl_timeout(0);
 		if (m_exeType != "auto") {
 			cancel_time_check();
 			m_block_finished = true;
@@ -560,6 +600,7 @@ void HttpServer::processpost(int s, struct HttpRequest *prequest)
 	// index.html invoke this with id and result of an auto case, auto case commit result. 
 	// we need find correct test case by id, and record test result to it.
 	else if (prequest->path == "/commit_result") {
+		set_cl_timeout(0);
 		if ((prequest->content.length() == 0) || (!m_test_cases)) {
 			json_str = "{\"Error\":\"no result\"}";
 			m_last_auto_result = "BLOCK";
@@ -727,14 +768,18 @@ void HttpServer::timeout_action()
 		json_str = "{\"Error\":\"no case\"}";
 	} else if (m_exeType != "auto") {	// skip to next set if widget crash when run manual cases
 		if (g_run_wiget == true) {	// check whether widget is running
+			DBG_ONLY("----do widget live checking");
 			string cmd =
 			    "ps ax | grep " + m_suite_id +
 			    " | grep -v grep | awk '{print $NF}'";
-			if (!run_cmd(cmd, m_suite_id, NULL)) {
+			if (!run_cmd_new(cmd, m_suite_id, NULL)) {
+				DBG_ONLY
+				    ("----widget is not online, finish the set");
 				m_set_finished = true;
 				m_block_finished = true;
-			} else
+			} else {
 				set_timer(60);	// continue to set timer for manual cases
+			}
 		}
 	} else if (m_block_case_index < m_block_case_count) {
 		g_error_code = 3;
@@ -751,9 +796,9 @@ void HttpServer::print_info_string(int case_index)
 {
 	if (g_show_log) {
 		DBG_ONLY(endl << "execute case: ");
-		DBG_ONLY(m_suite_name << " # " << m_test_cases[case_index].
-			 case_id << " ..(" << m_test_cases[case_index].
-			 result << ")");
+		DBG_ONLY(m_suite_name << " # " <<
+			 m_test_cases[case_index].case_id << " ..(" <<
+			 m_test_cases[case_index].result << ")");
 
 		if (m_test_cases[case_index].result != "PASS")	// print error message if case not pass
 			DBG_ONLY(m_test_cases[case_index].std_out);
@@ -781,6 +826,10 @@ bool HttpServer::get_auto_case(string content, string * type)
 					if (m_block_case_index <
 					    m_block_case_count) {
 						set_timer(m_test_cases[m_block_case_index].timeout_value + 10);	// +10 is to avoid dup result from suite if case timeout
+						set_cl_timeout(m_test_cases
+							       [m_block_case_index].
+							       timeout_value +
+							       10);
 						m_test_cases
 						    [m_block_case_index].
 						    set_start_at();
@@ -1075,6 +1124,32 @@ bool HttpServer::run_cmd(string cmdString, string expectString,
 			ret = true;
 		if (output)
 			output->push_back(buf);
+		memset(buf, 0, 128);
+	}
+	pclose(pp);
+	return ret;
+}
+
+bool HttpServer::run_cmd_new(string cmdString, string expectString,
+			     std::vector < string > *output)
+{
+	bool ret = false;
+
+	char buf[128];
+	memset(buf, 0, 128);
+	FILE *pp;
+	if ((pp = popen(cmdString.c_str(), "r")) == NULL) {
+		if (g_show_log)
+			DBG_ONLY("popen() error!");
+		return ret;
+	}
+	if (g_show_log)
+		DBG_ONLY(cmdString);
+	while (fgets(buf, sizeof buf, pp)) {
+		if (g_show_log)
+			DBG_ONLY(buf);
+		if (strlen(buf) > 0)
+			ret = true;
 		memset(buf, 0, 128);
 	}
 	pclose(pp);

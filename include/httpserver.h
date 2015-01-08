@@ -49,6 +49,8 @@ class HttpServer {
 	//void start_client();
 	bool run_cmd(string cmdString, string expectString,
 		     std::vector < string > *output);
+        bool run_cmd_new(string cmdString, string expectString,
+                     std::vector < string > *output);
 	void print_info_string(int case_index);
 	void find_id(Json::Value paras, bool auto_test);
 	void getCurrentTime();
@@ -56,6 +58,8 @@ class HttpServer {
 	void set_timer(int timeout_value);
 	 Json::Value splitContent(string content);
 	void timeout_action();
+	void set_cl_timeout(long int timeout_value);
+	bool check_cl_timeout();
 
 #if defined(__WIN32__) || defined(__WIN64__)
 #else
@@ -78,6 +82,7 @@ class HttpServer {
 	bool m_set_finished;
 	bool m_server_checked;
 	int m_check_times;
+	long int m_cl_timeout;
 
 	 Json::Value m_capability;
 	//TestStatus   
