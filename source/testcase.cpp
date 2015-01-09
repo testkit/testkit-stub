@@ -19,16 +19,19 @@
 
 using namespace std;
 
-TestCase::TestCase() {
+TestCase::TestCase()
+{
 	result = "N/A";
 
 	std_out = "";
 }
 
-TestCase::~TestCase() {
+TestCase::~TestCase()
+{
 }
 
-void TestCase::init(const Json::Value value) {
+void TestCase::init(const Json::Value value)
+{
 	m_case = value;
 	case_id = value["case_id"].asString();
 	if (value["timeout"].isString())
@@ -39,11 +42,13 @@ void TestCase::init(const Json::Value value) {
 	}
 }
 
-Json::Value TestCase::to_json() {
+Json::Value TestCase::to_json()
+{
 	return m_case;
 }
 
-Json::Value TestCase::result_to_json() {
+Json::Value TestCase::result_to_json()
+{
 	Json::Value root;
 
 	root["order"] = m_case["order"];
@@ -59,7 +64,8 @@ Json::Value TestCase::result_to_json() {
 	return root;
 }
 
-void TestCase::set_result(Json::Value paras) {
+void TestCase::set_result(Json::Value paras)
+{
 	result = paras["result"].asString();
 
 	std_out = paras["msg"].asString();
@@ -68,27 +74,29 @@ void TestCase::set_result(Json::Value paras) {
 	end_at = m_str_time;
 }
 
-void TestCase::set_start_at() {
+void TestCase::set_start_at()
+{
 	getCurrentTime();
 	start_at = m_str_time;
 }
 
-void TestCase::getCurrentTime() {
+void TestCase::getCurrentTime()
+{
 	memset(m_str_time, 0, 32);
 	time_t timer;
 	time(&timer);
 #if defined(__WIN32__) || defined(__WIN64__)
-	struct tm* t_tm;
+	struct tm *t_tm;
 	t_tm = localtime(&timer);
-	sprintf(m_str_time, "%4d-%02d-%02d %02d:%02d:%02d", t_tm->tm_year + 1900,
-			t_tm->tm_mon + 1, t_tm->tm_mday, t_tm->tm_hour, t_tm->tm_min,
-			t_tm->tm_sec);
+	sprintf(m_str_time, "%4d-%02d-%02d %02d:%02d:%02d",
+		t_tm->tm_year + 1900, t_tm->tm_mon + 1, t_tm->tm_mday,
+		t_tm->tm_hour, t_tm->tm_min, t_tm->tm_sec);
 #else
-	struct tm t_tm = {0};
+	struct tm t_tm = { 0 };
 	time(&timer);
 	localtime_r(&timer, &t_tm);
 	sprintf(m_str_time, "%4d-%02d-%02d %02d:%02d:%02d", t_tm.tm_year + 1900,
-			t_tm.tm_mon + 1, t_tm.tm_mday, t_tm.tm_hour, t_tm.tm_min,
-			t_tm.tm_sec);
+		t_tm.tm_mon + 1, t_tm.tm_mday, t_tm.tm_hour, t_tm.tm_min,
+		t_tm.tm_sec);
 #endif
 }

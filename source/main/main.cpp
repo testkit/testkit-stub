@@ -23,10 +23,11 @@ bool g_show_log = false;
 extern HttpServer httpserver;
 
 //parse the cmd line parameters
-void parse(int count, char *argv[], HttpServer *httpserver) {
+void parse(int count, char *argv[], HttpServer * httpserver)
+{
 	for (int i = 1; i < count; ++i) {
 		string argvstr = argv[i];
-		if (argvstr == "--debug"){
+		if (argvstr == "--debug") {
 			g_show_log = true;
 			continue;
 		}
@@ -41,11 +42,11 @@ void parse(int count, char *argv[], HttpServer *httpserver) {
 	}
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
 	if (argc > 1) {
 		parse(argc, argv, &httpserver);
 	}
 	httpserver.StartUp();
 	return 0;
 }
-
