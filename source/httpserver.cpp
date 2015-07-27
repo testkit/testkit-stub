@@ -57,7 +57,7 @@ struct itimerval timer;
 #include <json/json.h>
 #include "comfun.h"
 
-#define MAX_BUF 300000
+#define MAX_BUF 8388608
 #define CLIENT_LIVE_TIMEOUT 300
 
 #define GET   0
