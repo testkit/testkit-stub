@@ -385,7 +385,8 @@ void HttpServer::processpost(int s, struct HttpRequest *prequest)
 		bool parsed = reader.parse(prequest->content, value);
 		if (parsed) {
 			g_launcher = value["launcher"].asString();
-                        g_platform = value["platform"].asString();
+            g_platform = value["platform"].asString();
+
 			m_suite_name = value["suite_name"].asString();
 			if (g_launcher == "wrt-launcher") {
 				g_run_wiget = true;
@@ -401,7 +402,14 @@ void HttpServer::processpost(int s, struct HttpRequest *prequest)
 				//g_kill_cmd = "am force-stop org.xwalk." + m_suite_name;
 				g_launch_cmd = "";
 				g_kill_cmd = "";
-			} else {
+			} else if (g_platform == "windowshttp"){ // xwalk on windows
+				g_run_wiget = true;
+				m_suite_id = value["suite_id"].asString();
+				//g_launch_cmd = "C:\\\"Program Files\"\\"+m_suite_id + "\\" + g_launcher;
+				g_launch_cmd = "notepad C:\\\"Program Files\"\\" + m_suite_id + "\\" + m_suite_id + "\\manifest.json";
+				g_kill_cmd = "";
+				sleep(1);
+		    }else {
 #if defined(__WIN32__) || defined(__WIN64__)
 				g_launch_cmd = "start /b " + g_launcher;
 				g_kill_cmd = "";
@@ -426,7 +434,39 @@ void HttpServer::processpost(int s, struct HttpRequest *prequest)
 			}
 			json_str = "{\"Error\":\"parse error\"}";
 		}
-	} else if (prequest->path.find("/set_testcase") != string::npos) {	// invoke by com-module to send testcase data
+	} else if (prequest->path.find("/execute_cmd") != string::npos){  //Only work on Windows! invoke by com-module for executing command on windows platform
+		if (g_show_log){
+			DBG_ONLY("[ execute command: ]" << endl);
+			DBG_ONLY(prequest->content);
+		}
+		Json::Reader reader;
+		Json::Value value;
+
+		bool parsed = reader.parse(prequest->content, value);
+		string json_cmd = "";
+		if (parsed){
+			json_cmd = value["cmd"].asString();
+		}
+
+		std::vector < string > outputs;
+		string cmd = json_cmd;
+		cout << "[ command: ]" << cmd << endl;
+		run_cmd(cmd, "", &outputs);
+		for (unsigned int i = 0; i < outputs.size(); i++){
+			cout << "[ output: ]" << outputs[i] << endl;
+		}
+	} else if (prequest->path.find("/execute_async_cmd") != string::npos) {
+		Json::Reader reader;
+		Json::Value value;
+
+		bool parsed = reader.parse(prequest->content, value);
+		string json_cmd = "";
+		if (parsed) {
+			json_cmd = value["cmd"].asString();
+		}
+		string cmd = json_cmd;
+		run_cmd_async(cmd);
+    }else if (prequest->path.find("/set_testcase") != string::npos) {	// invoke by com-module to send testcase data
 		m_block_finished = false;
 		m_set_finished = false;
 		m_timeout_count = 0;
@@ -771,14 +811,24 @@ void HttpServer::timeout_action()
 	} else if (m_exeType != "auto") {	// skip to next set if widget crash when run manual cases
 		if (g_run_wiget == true) {	// check whether widget is running
 			DBG_ONLY("----do widget live checking");
+			//-------------------------------------------------------------------------------------------------------------------------------------------
+#if defined(__WIN32__) || defined(__WIN64__)
+			string cmd =
+				"tasklist | findstr xwalk.exe";
+			if (!run_cmd_new(cmd, "xwalk.exe", NULL)) {
+							m_set_finished = true;
+							m_block_finished = true;
+#else
 			string cmd =
 			    "ps ax | grep " + m_suite_id +
 			    " | grep -v grep | awk '{print $NF}'";
+
 			if (!run_cmd_new(cmd, m_suite_id, NULL)) {
 				DBG_ONLY
 				    ("----widget is not online, finish the set");
 				m_set_finished = true;
 				m_block_finished = true;
+#endif
 			} else {
 				set_timer(60);	// continue to set timer for manual cases
 			}
@@ -1101,6 +1151,14 @@ void HttpServer::killAllWidget()
 			DBG_ONLY("[cmd: " << g_launch_cmd << " error]");
 	}
 }*/
+
+// async execute command
+void HttpServer::run_cmd_async(string cmdString)
+{
+    string async_cmd = "start \"\" " + cmdString + " &";
+    cout << "[ async command: ]" << async_cmd << endl;
+    system(async_cmd.c_str());
+}
 
 // run shell cmd. return true if the output equal to expectString. show cmd and output if showcmdAnyway.
 bool HttpServer::run_cmd(string cmdString, string expectString,
