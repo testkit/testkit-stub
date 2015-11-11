@@ -49,14 +49,16 @@ class HttpServer {
 	//void start_client();
 	bool run_cmd(string cmdString, string expectString,
 		     std::vector < string > *output);
-        bool run_cmd_new(string cmdString, string expectString,
+	//execute command to no wait for a system() command for Windows platform
+	void run_cmd_async(string cmdString);
+    bool run_cmd_new(string cmdString, string expectString,
                      std::vector < string > *output);
 	void print_info_string(int case_index);
 	void find_id(Json::Value paras, bool auto_test);
 	void getCurrentTime();
 	void cancel_time_check();
 	void set_timer(int timeout_value);
-	 Json::Value splitContent(string content);
+	Json::Value splitContent(string content);
 	void timeout_action();
 	void set_cl_timeout(long int timeout_value);
 	bool check_cl_timeout();
