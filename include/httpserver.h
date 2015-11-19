@@ -51,6 +51,7 @@ class HttpServer {
 		     std::vector < string > *output);
 	//execute command to no wait for a system() command for Windows platform
 	void run_cmd_async(string cmdString);
+	int run_cmd_return_code(string cmdString);
     bool run_cmd_new(string cmdString, string expectString,
                      std::vector < string > *output);
 	void print_info_string(int case_index);
