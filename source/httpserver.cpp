@@ -455,6 +455,56 @@ void HttpServer::processpost(int s, struct HttpRequest *prequest)
 		for (unsigned int i = 0; i < outputs.size(); i++){
 			cout << "[ output: ]" << outputs[i] << endl;
 		}
+#if defined(__WIN32__) || defined(__WIN64__)
+	} else if (prequest->path.find("/powershell_install") != string::npos){
+		//Only work with Windows PowerShell. JSON {suite: suitename, file:suitefile_file_path}
+		Json::Reader reader;
+		Json::Value value;
+
+		bool parsed = reader.parse(prequest->content, value);
+		string json_suite = "";
+		string json_file = "";
+		if (parsed) {
+			json_suite = value["suite"].asString();
+			json_file = value["file"].asString();
+		}
+
+		string ps_cmd = "powershell -file c:\\stub\\powershell\\download.ps1 ";
+		ps_cmd = ps_cmd + json_suite + " " + json_file;
+		cout << "[ command: ]" << ps_cmd << endl;
+		int ret = run_cmd_return_code(ps_cmd);
+		if(ret != 1){
+			if (ret == -1)
+				json_str = "{\"Error\":\"Fail to install "+ json_suite +"\"}";
+			else if (ret == -2)
+				json_str = "{\"Error\":\"Fail to download "+ json_file +"\"}";
+			else
+				json_str = "{\"Error\":\"Unknown script errors.\"}";
+		}
+	} else if (prequest->path.find("/powershell_uninstall") != string::npos){
+		//Only work with Windows PowerShell. JSON {suite: suitename}
+		Json::Reader reader;
+		Json::Value value;
+
+		bool parsed = reader.parse(prequest->content, value);
+		string json_suite = "";
+		if (parsed) {
+			json_suite = value["suite"].asString();
+		}
+
+		string ps_cmd = "powershell -file c:\\stub\\powershell\\uninstall.ps1 ";
+		ps_cmd = ps_cmd + json_suite;
+		cout << "[ command: ]" << ps_cmd << endl;
+		int ret = run_cmd_return_code(ps_cmd);
+		if(ret != 1){
+			json_str = "{\"Error\":\"Fail to uninstall.\"}";
+		}
+	} else if (prequest->path.find("/powershell_exitcode") != string::npos){
+		string ps_cmd = "powershell -file c:\\stub\\powershell\\exitcode.ps1 0";
+		cout << "[ command: ]" << ps_cmd << endl;
+		int ret = run_cmd_return_code(ps_cmd);
+		cout << "[ return: ]" << ret << endl;
+#endif
 	} else if (prequest->path.find("/execute_async_cmd") != string::npos) {
 		Json::Reader reader;
 		Json::Value value;
@@ -1158,6 +1208,25 @@ void HttpServer::run_cmd_async(string cmdString)
     string async_cmd = "start \"\" " + cmdString + " &";
     cout << "[ async command: ]" << async_cmd << endl;
     system(async_cmd.c_str());
+}
+
+int HttpServer::run_cmd_return_code(string cmdString)
+{
+	char buf[128];
+	memset(buf, 0, 128);
+	std::vector < string > *output = new std::vector < string >();
+	FILE *pp;
+	if ((pp = popen(cmdString.c_str(), "r")) == NULL) {
+		return 1;
+	}
+	while (fgets(buf, sizeof buf, pp)) {
+		buf[strlen(buf) - 1] = 0;	// remove the character return at the end.
+		if (output)
+			output->push_back(buf);
+		memset(buf, 0, 128);
+	}
+
+	return pclose(pp);
 }
 
 // run shell cmd. return true if the output equal to expectString. show cmd and output if showcmdAnyway.
