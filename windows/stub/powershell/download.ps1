@@ -1,6 +1,6 @@
 #$suitefile =opt/tct-backgrounds-css3-tests/tct-backgrounds-css3-tests.msi
-function DowloadSuite($suitefile, $suite){
-	$source = "http://127.0.0.1:8080/packages/" + $suitefile
+function DowloadSuite($suitefile, $suite, $hostip){
+	$source = "http://" + $hostip + ":8080/packages/" + $suitefile
 	$destination = "c:\stub\packages\"+ $suite + ".msi"
 
 	#Write-Host $source
@@ -27,7 +27,7 @@ function UnzipSuite($suite){
 }
 
 $exit_code = 0
-if (DowloadSuite $args[1] $args[0]){
+if (DowloadSuite $args[1] $args[0] $args[2]){
     "Download suite zip successfully"
 	#unzip suite
 	#UnzipSuite($args[0])

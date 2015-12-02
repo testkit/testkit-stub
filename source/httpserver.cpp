@@ -457,20 +457,22 @@ void HttpServer::processpost(int s, struct HttpRequest *prequest)
 		}
 #if defined(__WIN32__) || defined(__WIN64__)
 	} else if (prequest->path.find("/powershell_install") != string::npos){
-		//Only work with Windows PowerShell. JSON {suite: suitename, file:suitefile_file_path}
+		//Only work with Windows PowerShell. JSON {suite: suitename, host: hostip, file:suitefile_file_path}
 		Json::Reader reader;
 		Json::Value value;
 
 		bool parsed = reader.parse(prequest->content, value);
 		string json_suite = "";
 		string json_file = "";
+		string json_host = "";
 		if (parsed) {
 			json_suite = value["suite"].asString();
 			json_file = value["file"].asString();
+			json_host = value["host"].asString();
 		}
 
 		string ps_cmd = "powershell -file c:\\stub\\powershell\\download.ps1 ";
-		ps_cmd = ps_cmd + json_suite + " " + json_file;
+		ps_cmd = ps_cmd + json_suite + " " + json_file + " " + json_host;
 		cout << "[ command: ]" << ps_cmd << endl;
 		int ret = run_cmd_return_code(ps_cmd);
 		if(ret != 1){
@@ -478,6 +480,8 @@ void HttpServer::processpost(int s, struct HttpRequest *prequest)
 				json_str = "{\"Error\":\"Fail to install "+ json_suite +"\"}";
 			else if (ret == -2)
 				json_str = "{\"Error\":\"Fail to download "+ json_file +"\"}";
+			else if (ret == -5)
+				json_str = "{\"Error\":\"Fail to execute "+ json_file +". Popen return null\"}";
 			else
 				json_str = "{\"Error\":\"Unknown script errors.\"}";
 		}
@@ -1214,15 +1218,13 @@ int HttpServer::run_cmd_return_code(string cmdString)
 {
 	char buf[128];
 	memset(buf, 0, 128);
-	std::vector < string > *output = new std::vector < string >();
 	FILE *pp;
 	if ((pp = popen(cmdString.c_str(), "r")) == NULL) {
-		return 1;
+		return -5;
 	}
 	while (fgets(buf, sizeof buf, pp)) {
 		buf[strlen(buf) - 1] = 0;	// remove the character return at the end.
-		if (output)
-			output->push_back(buf);
+		printf(buf);
 		memset(buf, 0, 128);
 	}
 
