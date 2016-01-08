@@ -2,10 +2,8 @@ language: cpp
 
 compiler:
   - gcc
-
 before_script:
-  - mkdir build
-  - cd build
-  - make ..
-
-script: make
+  - sudo apt-get install cmake
+  - make clean
+  - cmake
+script: make && make test 
