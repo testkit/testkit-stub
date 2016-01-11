@@ -6,7 +6,6 @@ set (testkit-stub_VERSION_MAJOR 1)
 set (testkit-stub_VERSION_MINOR 0)
 
 #include the subdirectory containing our libs
-add_subdirectory (include)
 add_subdirectory (source)
 include_directories(include)
-include_directories(source)
+include_directories(include/json)
