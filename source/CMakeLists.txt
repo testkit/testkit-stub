@@ -6,6 +6,10 @@ add_subdirectory(ut)
 
 aux_source_directory(. DIR_LIB_SRCS)
 
-include_directories("$PROJECT_SOURCE_DIR/../include")
+configure_file (
+  "${PROJECT_SOURCE_DIR}/include/httpserver.h"
+  "${PROJECT_BINARY_DIR}/include/comfun.h"
+  "${PROJECT_BINARY_DIR}/include/testcase.h"
+)
 
 add_library(testkitstub ${DIR_LIB_SRCS} ${HEADER_FILES})
