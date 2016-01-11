@@ -3,6 +3,7 @@ language: cpp
 compiler:
   - gcc
 before_script:
+  - sudo apt-get update
   - sudo apt-get install cmake tree
   - mkdir build
   - cd build
