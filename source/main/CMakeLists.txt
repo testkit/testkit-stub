@@ -4,6 +4,10 @@ configure_file (
   "${PROJECT_BINARY_DIR}/include/testcase.h"
 )
 
+include_directories(include)
+include_directories(include/json)
+
+
 aux_source_directory(. DIR_LIB_SRCS)
 
 add_executable(testkit-stub main.cpp)

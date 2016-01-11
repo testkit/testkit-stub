@@ -12,4 +12,6 @@ configure_file (
   "${PROJECT_BINARY_DIR}/include/testcase.h"
 )
 
+include_directories(include)
+include_directories(include/json)
 add_library(testkitstub ${DIR_LIB_SRCS} ${HEADER_FILES})
