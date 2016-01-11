@@ -5,5 +5,7 @@ compiler:
 before_script:
   - sudo apt-get install cmake
   - make clean
-  - cmake
+  - mkdir build
+  - cd build
+  - cmake .. && make
 script: make && make test 
