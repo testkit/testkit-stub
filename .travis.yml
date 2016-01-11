@@ -4,10 +4,8 @@ compiler:
   - gcc
 before_script:
   - sudo apt-get install cmake
-  - make clean
   - mkdir build
   - cd build
   - cmake .. 
-  - cat ../makefile
   - make
 script: make && make test 
