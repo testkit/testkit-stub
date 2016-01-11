@@ -3,9 +3,10 @@ language: cpp
 compiler:
   - gcc
 before_script:
-  - sudo apt-get install cmake
+  - sudo apt-get install cmake tree
   - mkdir build
   - cd build
   - cmake .. 
+  - tree
   - make
 script: make && make test 
