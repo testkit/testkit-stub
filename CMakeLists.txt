@@ -7,5 +7,11 @@ set (testkit-stub_VERSION_MINOR 0)
 
 #include the subdirectory containing our libs
 add_subdirectory (source)
+
+configure_file (
+  "${PROJECT_SOURCE_DIR}/httpserver.h.in"
+  "${PROJECT_BINARY_DIR}/httpserver.h"
+)
+
 include_directories(include)
 include_directories(include/json)
