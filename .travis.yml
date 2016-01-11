@@ -7,5 +7,7 @@ before_script:
   - make clean
   - mkdir build
   - cd build
-  - cmake .. && make
+  - cmake .. 
+  - cat makefile
+  - make
 script: make && make test 
