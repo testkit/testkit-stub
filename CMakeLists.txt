@@ -9,8 +9,9 @@ set (testkit-stub_VERSION_MINOR 0)
 add_subdirectory (source)
 
 configure_file (
-  "${PROJECT_SOURCE_DIR}/httpserver.h.in"
-  "${PROJECT_BINARY_DIR}/httpserver.h"
+  "${PROJECT_SOURCE_DIR}/include/httpserver.h"
+  "${PROJECT_BINARY_DIR}/include/comfun.h"
+  "${PROJECT_BINARY_DIR}/include/testcase.h"
 )
 
 include_directories(include)
