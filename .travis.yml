@@ -29,6 +29,7 @@ before_script:
   # cp to ../dest/android/
 
   # build for Win32 with MinGW
+  - ../tools/prepare_pthread.sh 
   - cmake -D win32=ON -D GNU_HOST=i686-w64-mingw32 -D CMAKE_TOOLCHAIN_FILE=../mingw_cross_toolchain.cmake ..
   - make
   - cp ./source/main/testkit-stub ../dest/windows/
