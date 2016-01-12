@@ -5,7 +5,8 @@ project (testkit-stub)
 option(i386 "i386" OFF)
 option(x86_64 "x86_64" OFF)
 option(arm "arm" OFF)
-
+option(win32 "win32" OFF)
+ 
 #version number
 set (testkit-stub_VERSION_MAJOR 1)
 set (testkit-stub_VERSION_MINOR 0)
@@ -20,7 +21,7 @@ IF(arm)
    message("---------------------------------------------------------------ARCH=ARM-----------------------------------------------")
 ENDIF()
 
-find_package (Threads)
+find_package(Threads REQUIRED)
 
 #include the subdirectory containing our libs
 add_subdirectory (source)
