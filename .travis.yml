@@ -4,7 +4,7 @@ compiler:
   - gcc
 before_script:
   - sudo apt-get update 
-  - sudo apt-get install cmake gcc-4.6-arm-linux-gnueabi g++-4.6-arm-linux-gnueabi libc6-dev-i386 lib32stdc++6
+  - sudo apt-get install cmake gcc-4.6-arm-linux-gnueabi g++-4.6-arm-linux-gnueabi libc6-dev-i386 lib32stdc++6 g++-multilib g++-4.6-multilib
   - mkdir build
   - cd build
   # build for x86_64
