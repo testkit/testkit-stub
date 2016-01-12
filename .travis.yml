@@ -14,7 +14,6 @@ before_script:
   - rm -rf *
   # build for i386
   - cmake -Di386=ON .. 
-  - tree  ./include/
   - make
   - cp ./source/main/testkit-stub ../dest/i386/
   - rm -rf *
