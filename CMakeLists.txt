@@ -1,9 +1,24 @@
 cmake_minimum_required (VERSION 2.8)
 project (testkit-stub)
 
+#build arch option
+option(i386 "i386" OFF)
+option(x86_64 "x86_64" OFF)
+option(arm "arm" OFF)
+
 #version number
 set (testkit-stub_VERSION_MAJOR 1)
 set (testkit-stub_VERSION_MINOR 0)
+
+IF(i386)
+   message("---------------------------------------------------------------ARCH=i386----------------------------------------------")
+ENDIF()
+IF(x86_64)
+   message("---------------------------------------------------------------ARCH=x86_64--------------------------------------------")
+ENDIF()
+IF(arm)
+   message("---------------------------------------------------------------ARCH=ARM-----------------------------------------------")
+ENDIF()
 
 find_package (Threads)
 
