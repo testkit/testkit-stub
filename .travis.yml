@@ -3,7 +3,8 @@ language: cpp
 compiler:
   - gcc
 before_script:
-  - sudo apt-get install cmake 
+  - sudo apt-get update 
+  - sudo apt-get install cmake tree gcc-4.6-arm-linux-gnueabi g++-4.6-arm-linux-gnueabi
   - mkdir build
   - cd build
   # build for x86_64
@@ -13,6 +14,7 @@ before_script:
   - rm -rf *
   # build for i386
   - cmake -Di386=ON .. 
+  - tree  ./include/
   - make
   - cp ./source/main/testkit-stub ../dest/i386/
   - rm -rf *
