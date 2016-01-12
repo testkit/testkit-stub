@@ -5,7 +5,7 @@ compiler:
 before_script:
   - sudo apt-get update 
   - sudo apt-get install tree cmake gcc-4.6-arm-linux-gnueabi g++-4.6-arm-linux-gnueabi libc6-dev-i386 lib32stdc++6 g++-multilib g++-4.6-multilib
-  - sudo apt-get install binutils-mingw-w64-i686 binutils-mingw-w64  gcc-mingw-w64-i686 g++-mingw-w64-i686
+  - sudo apt-get install binutils-mingw-w64-i686 binutils-mingw-w64-x86-64 binutils-mingw-w64  gcc-mingw-w64-i686 g++-mingw-w64-i686
   - mkdir build
   - cd build
   # build for x86_64
