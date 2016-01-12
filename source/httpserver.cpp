@@ -1224,7 +1224,9 @@ int HttpServer::run_cmd_return_code(string cmdString)
 	}
 	while (fgets(buf, sizeof buf, pp)) {
 		buf[strlen(buf) - 1] = 0;	// remove the character return at the end.
+#if defined(__WIN32__) || defined(__WIN64__)
 		printf(buf);
+#endif
 		memset(buf, 0, 128);
 	}
 
