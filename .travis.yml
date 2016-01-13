@@ -47,9 +47,7 @@ before_script:
   - ../../android-ndk/ndk-build
   - cd ../ 
   # build apk
-  - gradle tasks
-  - tree ./
-  - gradle build
-  # cp to ../dest/android/
+  - gradlew build 
+  # cp -r build/outputs/apk to ../dest/android/
   - cd ../build 
 script: tree ../dest/ 
