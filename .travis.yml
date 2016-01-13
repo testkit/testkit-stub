@@ -1,4 +1,6 @@
 language: android
+jdk: oraclejdk7
+
 android:
   components:
     - build-tools-18.1.1
@@ -12,26 +14,24 @@ before_script:
   - sudo apt-get install binutils-mingw-w64-i686 binutils-mingw-w64-x86-64 binutils-mingw-w64  gcc-mingw-w64-i686 g++-mingw-w64-i686
   - mkdir build
   - cd build
+
   # build for x86_64
   - cmake -Dx86_64=ON .. 
   - make
   - cp ./source/main/testkit-stub ../dest/x86_64/
   - rm -rf *
+
   # build for i386
   - cmake -Di386=ON .. 
   - make
   - cp ./source/main/testkit-stub ../dest/i386/
   - rm -rf *
+
   # build for arm
   - cmake -D CMAKE_TOOLCHAIN_FILE=../arm_toolchain.cmake ..
   - make
   - cp ./source/main/testkit-stub ../dest/arm/
   - rm -rf *
-  # build for android
-  # install ndk
-  # compile with ndk for all ABI
-  # build apk
-  # cp to ../dest/android/
 
   # build for Win32 with MinGW
   - ../tools/prepare_pthread.sh 
@@ -39,4 +39,12 @@ before_script:
   - make
   - cp ./source/main/testkit-stub.exe ../dest/windows/
   - rm -rf *
+
+  # build for android
+  - cd ../android/jni/
+  - ndk-build
+  - cd ../ 
+  # build apk
+  - gradle tasks
+  # cp to ../dest/android/
 script: tree ../dest/ 
