@@ -48,6 +48,9 @@ before_script:
   - cd ../ 
   # build apk
   - gradlew build --stacktrace
-  # cp -r build/outputs/apk to ../dest/android/
-  - cd ../build 
-script: tree ../dest/ 
+  - cp -r build/outputs/apk to ../dest/android/
+  - cd .. 
+script: 
+  - tree dest/ 
+  - tar -cvzf testkit-stub.tar.gz ./dest/
+  - ls -al
