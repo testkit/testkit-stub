@@ -41,10 +41,14 @@ before_script:
   - rm -rf *
 
   # build for android
+  - cd ../tools 
+  - ./install_android_ndk.sh
   - cd ../android/jni/
-  - ndk-build
+  - ../../android-ndk/ndk-build
   - cd ../ 
+  - tree .
   # build apk
   - gradle tasks
   # cp to ../dest/android/
+  - cd ../build 
 script: tree ../dest/ 
