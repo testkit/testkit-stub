@@ -23,8 +23,8 @@ android {
             assets.srcDirs = ['assets']
         }
     }
-    compileSdkVersion 18
-    buildToolsVersion "18.1.1"
+    compileSdkVersion 19
+    buildToolsVersion "19.0.1"
 
     if (multiarch) {
         productFlavors {
