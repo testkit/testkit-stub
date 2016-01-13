@@ -11,7 +11,7 @@ sudo rm /usr/i686-w64-mingw32/lib/libpthread.a
 sudo rm /usr/i686-w64-mingw32/lib/libpthreadGC2.a
  
 wget ftp://sourceware.org/pub/pthreads-win32/pthreads-w32-2-9-1-release.zip
-unzip pthreads-w32-2-9-1-release.zip
+unzip pthreads-w32-2-9-1-release.zip >/dev/null 2>&1
 mkdir -p $PWD/ptw32/include $PWD/ptw32/lib
 cp Pre-built.2/include/*.h $PWD/ptw32/include/
 cp Pre-built.2/lib/x86/libpthreadGC2.a $PWD/ptw32/lib/

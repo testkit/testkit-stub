@@ -1,33 +1,37 @@
-language: cpp
+language: android
+jdk: oraclejdk7
 
-compiler:
-  - gcc
+android:
+  components:
+    - build-tools-19.1.0
+    - android-19
+    - extra
+
 before_script:
   - sudo apt-get update 
+  - sudo apt-get install gcc-4.6 g++-4.6 
   - sudo apt-get install tree cmake gcc-4.6-arm-linux-gnueabi g++-4.6-arm-linux-gnueabi libc6-dev-i386 lib32stdc++6 g++-multilib g++-4.6-multilib
   - sudo apt-get install binutils-mingw-w64-i686 binutils-mingw-w64-x86-64 binutils-mingw-w64  gcc-mingw-w64-i686 g++-mingw-w64-i686
   - mkdir build
   - cd build
+
   # build for x86_64
   - cmake -Dx86_64=ON .. 
   - make
   - cp ./source/main/testkit-stub ../dest/x86_64/
   - rm -rf *
+
   # build for i386
   - cmake -Di386=ON .. 
   - make
   - cp ./source/main/testkit-stub ../dest/i386/
   - rm -rf *
+
   # build for arm
   - cmake -D CMAKE_TOOLCHAIN_FILE=../arm_toolchain.cmake ..
   - make
   - cp ./source/main/testkit-stub ../dest/arm/
   - rm -rf *
-  # build for android
-  # install ndk
-  # compile with ndk for all ABI
-  # build apk
-  # cp to ../dest/android/
 
   # build for Win32 with MinGW
   - ../tools/prepare_pthread.sh 
@@ -35,4 +39,18 @@ before_script:
   - make
   - cp ./source/main/testkit-stub.exe ../dest/windows/
   - rm -rf *
-script: tree ../dest/ 
+
+  # build for android
+  - cd ../tools 
+  - ./install_android_ndk.sh
+  - cd ../android/jni/
+  - ../../android-ndk/ndk-build
+  - cd ../ 
+  # build apk
+  - gradlew build --stacktrace
+  - cp -r build/outputs/apk ../dest/android/
+  - cd .. 
+script: 
+  - tree dest/ 
+  - tar -cvzf testkit-stub.tar.gz ./dest/
+  - ls -al
