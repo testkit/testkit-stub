@@ -46,9 +46,10 @@ before_script:
   - cd ../android/jni/
   - ../../android-ndk/ndk-build
   - cd ../ 
-  - tree .
   # build apk
   - gradle tasks
+  - tree ./
+  - gradle build
   # cp to ../dest/android/
   - cd ../build 
 script: tree ../dest/ 
