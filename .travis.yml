@@ -53,4 +53,14 @@ before_script:
 script: 
   - tree dest/ 
   - tar -cvzf testkit-stub.tar.gz ./dest/
-  - ls -al
+
+deploy:
+  provider: releases
+  skip_cleanup: true
+  api_key:
+    secure: G6JJkJ6ok1mc5XGsN5fvKd0V0Kw3oLBDeBqc+AG/tW9drbY/LRC6FQ1s25dbMZySYtEiOquwngnRMDCpyyxU3ekhCetLhzwlS4lITh8jpeCMDdBML+kYYuwMmAIzGJ8LNUwaonXUWHZytTOWlScT+rOH6eKCIKcf27oGDlWH4K4=
+  file: ./testkit-stub.tar.gz
+  on:
+    repo: testkit/testkit-stub
+    tags: true
+    all_branches: true
