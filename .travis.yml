@@ -48,7 +48,7 @@ before_script:
   - cd ../ 
   # build apk
   - gradlew build --stacktrace
-  - cp -r build/outputs/apk to ../dest/android/
+  - cp -r build/outputs/apk ../dest/android/
   - cd .. 
 script: 
   - tree dest/ 
