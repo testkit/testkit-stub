@@ -52,6 +52,7 @@ class HttpServer {
 	//execute command to no wait for a system() command for Windows platform
 	void run_cmd_async(string cmdString);
 	int run_cmd_return_code(string cmdString);
+	struct CmdResult run_cmd_with_stdstream(string cmdString);
     bool run_cmd_new(string cmdString, string expectString,
                      std::vector < string > *output);
 	void print_info_string(int case_index);
@@ -63,6 +64,7 @@ class HttpServer {
 	void timeout_action();
 	void set_cl_timeout(long int timeout_value);
 	bool check_cl_timeout();
+	void loadconfigure();
 
 #if defined(__WIN32__) || defined(__WIN64__)
 #else
@@ -110,4 +112,9 @@ class HttpServer {
 	string m_suite_name;
 	string m_suite_id;
 	bool g_run_wiget;	//whether run on the device with wiget
+
+	string m_webdriver_server_path;
+	string m_suites_path;
+
+	struct cmd_result;
 };
