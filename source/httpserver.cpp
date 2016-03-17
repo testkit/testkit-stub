@@ -34,6 +34,11 @@ struct Timer_thread_info {	/* Used as argument to thread */
 };
 Timer_thread_info timer_thread_info;
 
+struct CmdResult {
+  int exit_code;
+  string stdout_str;
+};
+
 void *win_timer_callback(void *para)
 {
 	Timer_thread_info *tinfo = (Timer_thread_info *) para;
@@ -139,6 +144,25 @@ HttpServer::~HttpServer()
 	}
 	if (g_show_log)
 		outputFile.close();
+}
+
+void HttpServer::loadconfigure()
+{
+	Json::Reader reader;
+	Json::Value value;
+
+	string configure;
+	std::ifstream configure_file("webdriver.json", std::ifstream::binary);
+	configure_file >> configure;
+	cout << configure << endl;
+
+	bool parsed = reader.parse(configure_file, value, false);
+	if (parsed) {
+		cout << "server_home: " << value["server_home"] << endl;
+		cout << "suites_home: " << value["suites_home"] << endl;
+	}else{
+		cout << "Fail to parse webdriver.json" << endl;
+	}
 }
 
 // generate response code. send response
@@ -508,6 +532,38 @@ void HttpServer::processpost(int s, struct HttpRequest *prequest)
 		cout << "[ command: ]" << ps_cmd << endl;
 		int ret = run_cmd_return_code(ps_cmd);
 		cout << "[ return: ]" << ret << endl;
+
+	// WebDriver APIs begin ###################################################################################
+	} else if (prequest->path.find("/webdriver_launch_server") != string::npos){
+		loadconfigure();
+		// replace path with configure
+		string ps_cmd = "python $WebDriverPath\\xwalkdriver.py";
+		cout << "[ command: ]" << ps_cmd << endl;
+		int ret = run_cmd_return_code(ps_cmd);
+		cout << "[ return: ]" << ret << endl;
+
+	// WebDriver APIs end ###################################################################################
+	} else if (prequest->path.find("/general_cmd_response") != string::npos){
+		//general command. JSON: {cmd: cmd}
+		Json::Reader reader;
+		Json::Value value;
+
+		bool parsed = reader.parse(prequest->content, value);
+		string json_cmd = "";
+		if (parsed) {
+			json_cmd = value["cmd"].asString();
+		}
+
+		cout << "[ command:" << json_cmd <<  "]" << endl;
+		struct CmdResult result = run_cmd_with_stdstream(json_cmd);
+		cout << "[ return: " << result.exit_code << "]" << endl;
+		char t[256];
+		string s;
+
+		sprintf(t, "%d", result.exit_code);
+		s = t;
+		json_str = "{\"OK\":1, \"exit_code\":" + s
+				+ ", \"output\":\"" + result.stdout_str + "\"}";
 #endif
 	} else if (prequest->path.find("/execute_async_cmd") != string::npos) {
 		Json::Reader reader;
@@ -1231,6 +1287,55 @@ int HttpServer::run_cmd_return_code(string cmdString)
 	}
 
 	return pclose(pp);
+}
+
+void replace_all(std::string & s, std::string const & t, std::string const & w)
+{
+  string::size_type pos = s.find(t), t_size = t.size(), r_size = w.size();
+  while(pos != std::string::npos){ // found
+    s.replace(pos, t_size, w);
+    pos = s.find(t, pos + r_size );
+  }
+}
+
+string trim(string const & s, char c = ' ')
+{
+  string::size_type a = s.find_first_not_of(c);
+  string::size_type z = s.find_last_not_of(c);
+  if(a == string::npos){
+    a = 0;
+  }
+
+  if(z == string::npos){
+    z = s.size();
+  }
+  return s.substr(a, z);
+}
+
+struct CmdResult HttpServer::run_cmd_with_stdstream(string cmdString)
+{
+	char buf[128];
+	memset(buf, 0, 128);
+	FILE *pp;
+	string std_out;
+	cmdString += " 2>&1";
+	struct CmdResult result = {-5, "STDOUT"};
+	if ((pp = popen(cmdString.c_str(), "r")) == NULL) {
+		return result;
+	}
+	while (fgets(buf, sizeof buf, pp)) {
+		buf[strlen(buf) - 1] = 0;	// remove the character return at the end.
+#if defined(__WIN32__) || defined(__WIN64__)
+		printf(buf);
+#endif
+		std_out += buf;
+		memset(buf, 0, 128);
+	}
+	replace_all(std_out, "\\", "\\\\");
+	replace_all(std_out, "\"", "\\\"");
+	result.exit_code = pclose(pp);
+	result.stdout_str = std_out;
+	return result;
 }
 
 // run shell cmd. return true if the output equal to expectString. show cmd and output if showcmdAnyway.
