@@ -31,6 +31,11 @@ typedef struct HttpRequest {
 	int responsecode;	//response code
 } HR;
 
+struct CmdResult {
+  int exit_code;
+  string stdout_str;
+};
+
 class HttpServer {
  public:
 	HttpServer();

@@ -34,11 +34,6 @@ struct Timer_thread_info {	/* Used as argument to thread */
 };
 Timer_thread_info timer_thread_info;
 
-struct CmdResult {
-  int exit_code;
-  string stdout_str;
-};
-
 void *win_timer_callback(void *para)
 {
 	Timer_thread_info *tinfo = (Timer_thread_info *) para;
