@@ -1,7 +1,9 @@
 LOCAL_PATH := $(call my-dir)
 
 include $(CLEAR_VARS)
-LOCAL_CFLAGS += -fexceptions -frtti
+LOCAL_CFLAGS += -fexceptions -frtti -pie -fPIE
+LOCAL_CPPFLAGS += -pie -fPIE
+LOCAL_LDFLAGS += -pie -fPIE
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/../../include
 LOCAL_LDLIBS := -llog
 LOCAL_MODULE := testkit-stub
