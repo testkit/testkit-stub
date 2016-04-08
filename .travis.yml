@@ -43,13 +43,31 @@ before_script:
   # build for android
   - cd ../tools 
   - ./install_android_ndk.sh
+
+  ## build PIE binary
   - cd ../android/jni/
+  - cp ./Android_PIE.mk ./Android.mk
+  - ../../android-ndk/ndk-build clean
+  - rm -rf ../libs/*
   - ../../android-ndk/ndk-build
   - cd ../ 
   # build apk
   - gradlew build --stacktrace
-  - cp -r build/outputs/apk ../dest/android/
+  - cp -r build/outputs/apk ../dest/android_PIE/
   - cd .. 
+
+  ## build non-PIE binary
+  - cd ./android/jni/
+  - cp ./Android_non_PIE.mk ./Android.mk
+  - ../../android-ndk/ndk-build clean
+  - rm -rf ../libs/*
+  - ../../android-ndk/ndk-build
+  - cd ../ 
+  # build apk
+  - gradlew build --stacktrace
+  - cp -r build/outputs/apk ../dest/android_non_PIE/
+  - cd ..
+
 script: 
   - tree dest/ 
   - tar -cvzf testkit-stub.tar.gz ./dest/
