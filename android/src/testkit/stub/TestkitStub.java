@@ -23,64 +23,42 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
-public class TestkitStub extends Activity {
+public class TestkitStub extends Activity implements View.OnClickListener {
     @Override
-    public void onCreate(Bundle savedInstanceState)
-    {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        TextView tv = new TextView(this);
-        tv.setClickable(false);
-        setContentView(tv);
+        setContentView(R.layout.testkitstub_activity_layout);
+        Button startButton = (Button) findViewById(R.id.start_button);
+        Button stopButton = (Button) findViewById(R.id.stop_button);
 
-        String stub = "testkit-stub";
-        String path = getFilesDir().getPath() + "/";
-        try {// if can't open, then create it
-			FileInputStream fis = openFileInput(stub);
-			try {fis.close();} catch (IOException e) {}
-		} catch (FileNotFoundException e1) {
-			try {
-				InputStream input = getAssets().open("bins/" + Build.CPU_ABI + "/" + stub); // create stub according to ABI
-				FileOutputStream fo = openFileOutput(stub, 0);
-				int length = input.available();
-				byte [] buffer = new byte[length];// how to delete buffer?
-				input.read(buffer);
-				input.close();
-				fo.write(buffer);
-				fo.flush();
-				fo.close();
-				//getAssets().close(); // this will cause fc if launch again
-				Runtime.getRuntime().exec("chmod 744 " + path + stub);
-	        } catch (IOException e) {
-				tv.setText(e.getMessage());
-				e.printStackTrace();
-			}
-		}
+        startButton.setOnClickListener(this);
+        stopButton.setOnClickListener(this);
+    }
 
-        try {
-			Process p = Runtime.getRuntime().exec("sh -c " + path + stub);
-			String line = "", res = "";
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.start_button:
+                Intent startIntent = new Intent(TestkitStub.this, TestkitStubService.class);
+                startIntent.setAction(Constants.ACTION.STARTFOREGROUND_ACTION);
+                startService(startIntent);
+                break;
+            case R.id.stop_button:
+                Intent stopIntent = new Intent(TestkitStub.this, TestkitStubService.class);
+                stopIntent.setAction(Constants.ACTION.STOPFOREGROUND_ACTION);
+                startService(stopIntent);
+                break;
 
-			InputStream input = p.getInputStream();
-			DataInputStream osRes = new DataInputStream(input);
-			while((line = osRes.readLine()) != null) res += line + "\n";
-			osRes.close();
-			input.close();
-
-			input = p.getErrorStream();
-			osRes = new DataInputStream(input);
-			while((line = osRes.readLine()) != null) res += line + "\n";
-			osRes.close();
-			input.close();
-
-			tv.setText(res);
-        } catch (IOException e) {
-			tv.setText(e.getMessage());
-			e.printStackTrace();
-		}
+            default:
+                break;
+        }
     }
 }
