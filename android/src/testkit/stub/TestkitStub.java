@@ -16,19 +16,11 @@
 
 package testkit.stub;
 
-import java.io.DataInputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import android.app.Activity;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
 
 public class TestkitStub extends Activity implements View.OnClickListener {
     @Override
@@ -41,6 +33,10 @@ public class TestkitStub extends Activity implements View.OnClickListener {
 
         startButton.setOnClickListener(this);
         stopButton.setOnClickListener(this);
+
+        Intent startIntent = new Intent(TestkitStub.this, TestkitStubService.class);
+        startIntent.setAction(Constants.ACTION.STARTFOREGROUND_ACTION);
+        startService(startIntent);
     }
 
     @Override
