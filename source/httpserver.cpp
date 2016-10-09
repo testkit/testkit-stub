@@ -925,8 +925,8 @@ void HttpServer::timeout_action()
 							m_block_finished = true;
 #else
 			string cmd =
-			    "ps ax | grep " + m_suite_id +
-			    " | grep -v grep | awk '{print $NF}'";
+			    "pgrep -a xwalk | grep " + m_suite_id +
+			    " | awk '{print $NF}'";
 
 			if (!run_cmd_new(cmd, m_suite_id, NULL)) {
 				DBG_ONLY
