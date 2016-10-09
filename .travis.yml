@@ -52,7 +52,7 @@ before_script:
   - ../../android-ndk/ndk-build
   - cd ../ 
   # build apk
-  - gradlew build --stacktrace
+  - ./gradlew build --stacktrace
   - cp -r build/outputs/apk ../dest/android_PIE/
   - cd .. 
 
@@ -64,7 +64,7 @@ before_script:
   - ../../android-ndk/ndk-build
   - cd ../ 
   # build apk
-  - gradlew build --stacktrace
+  - ./gradlew build --stacktrace
   - cp -r build/outputs/apk ../dest/android_non_PIE/
   - cd ..
 
