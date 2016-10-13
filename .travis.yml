@@ -33,6 +33,13 @@ before_script:
   - cp ./source/main/testkit-stub ../dest/arm/
   - rm -rf *
 
+  # build for ostro
+  - ../tools/install_ostro_sdk.sh
+  - cmake -D CMAKE_TOOLCHAIN_FILE=../ostro_toolchain.cmake ..
+  - make
+  - cp ./source/main/testkit-stub ../dest/ostro/
+  - rm -rf *
+
   # build for Win32 with MinGW
   - ../tools/prepare_pthread.sh 
   - cmake -D win32=ON -D GNU_HOST=i686-w64-mingw32 -D CMAKE_TOOLCHAIN_FILE=../mingw_cross_toolchain.cmake ..
